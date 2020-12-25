@@ -161,7 +161,9 @@ function textToProps(s) {
     let parts = line.trim().match(/^(?:"([^"]+)"|([^ ]+))\s+(.+)$/);
     if (parts && parts[3]) {
       let k = parts[1] || parts[2];
-      newProps[k.trim()] = parts[3].trim();
+      let v = parts[3].trim();
+      let vNum = Number(v);
+      newProps[k.trim()] = isNaN(vNum) ? v : vNum;
     }
   }
   return newProps;

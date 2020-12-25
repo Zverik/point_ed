@@ -72,6 +72,8 @@ function selectPoint(e) {
 
 function addPoint(coord) {
   document.getElementById('sidebar-start').style.display = 'none';
+  if (points.getLayers().length == 0)
+    clearStorage();
   if (!coord)
     coord = map.getCenter();
   let m = L.marker(coord);
@@ -157,17 +159,27 @@ function doLoad(content) {
 
 function loadFile(input) {
   let reader = new FileReader();
+  let fileName = input.files[0].name;
   reader.readAsText(input.files[0]);
   reader.onerror = function() {
     window.alert('Failed to read a file, try again');
   }
   reader.onload = function() {
+    clearStorage();
+    document.getElementById('downlink').setAttribute('download', fileName);
     doLoad(reader.result);
   }
 }
 
 function restoreSaved() {
-  doLoad(localStorage.getItem('saved'));
+  doLoad(localStorage.getItem('savedPoints'));
+  if (localStorage.getItem('savedPointsName'))
+    document.getElementById('downlink').setAttribute('download', localStorage.getItem('savedPointsName'));
+}
+
+function clearStorage() {
+  localStorage.removeItem('savePoints');
+  localStorage.removeItem('savePointsName');
 }
 
 function savePoints() {
@@ -175,5 +187,6 @@ function savePoints() {
   let link = document.getElementById('downlink');
   link.setAttribute('href', points ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(pointsStr) : '#');
   localStorage.setItem('savedPoints', pointsStr);
+  localStorage.setItem('savedPointsName', document.getElementById('downlink').getAttribute('download'));
   document.getElementById('download').style.display = points ? 'block' : 'none';
 }

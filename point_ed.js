@@ -7,6 +7,7 @@ window.onload = function() {
   }).addTo(map);
   points = L.featureGroup().addTo(map);
 
+  console.log(localStorage.getItem('saved'))
   if (localStorage.getItem('saved'))
     document.getElementById('restore').display = 'block';
 
@@ -81,10 +82,17 @@ function addPoint(coord) {
   selectPoint({target: m});
 }
 
+function deletePoint() {
+  var p = selected;
+  unselect();
+  points.removeLayer(p);
+}
+
 function getPointName(point) {
   let props = point.feature.properties;
   if (props['name']) return props.name;
   if (props['title']) return props.title;
+  if (props['id']) return props.id;
   for (p in props) {
     if (p.toLowerCase().indexOf('name') >= 0) return props[p];
     if (p.toLowerCase().indexOf('title') >= 0) return props[p];

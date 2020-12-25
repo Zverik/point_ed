@@ -175,7 +175,7 @@ function compareProps(p1, p2) {
   if (k1.length != k2.length)
     return false;
   for (let k of k1)
-    if (k1[k] != k2[k])
+    if (p1[k] != p2[k])
       return false;
   return true;
 }

@@ -48,6 +48,18 @@ window.onload = function() {
     addPoint(e.latlng);
   });
   map.on('click', unselect);
+
+  document.addEventListener('dragover', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+  document.addEventListener('drop', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (e.dataTransfer.files)
+      loadFile(e.dataTransfer);
+  });
 };
 
 function getIcon(isSelected) {

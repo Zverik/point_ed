@@ -1,9 +1,11 @@
-var map, points, selected, cm, iconRed;
+var map, points, selected, cm, iconRed, iconSmall;
+var smallIcons = true;
 
 window.onload = function() {
   map = L.map('map', { doubleClickZoom: false }).setView([45, 20], 4);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
   }).addTo(map);
   points = L.featureGroup().addTo(map);
 
@@ -21,9 +23,20 @@ window.onload = function() {
 
   iconRed = L.icon({
     iconUrl: 'marker-red.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    shadowSize: [41, 41]
+    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+		iconSize:    [25, 41],
+		iconAnchor:  [12, 41],
+		popupAnchor: [1, -34],
+		tooltipAnchor: [16, -28],
+		shadowSize:  [41, 41]
+  });
+
+  iconSmall = new L.Icon.Default({
+    iconSize: [13, 21],
+    iconAnchor: [6, 21],
+    popupAnchor: [1, -17],
+    tooltipAnchor: [8, -14],
+    shadowSize: [21, 21]
   });
 
   document.addEventListener('keydown', function(e) {
@@ -34,7 +47,22 @@ window.onload = function() {
   map.on('dblclick', function(e) {
     addPoint(e.latlng);
   });
+  map.on('click', unselect);
 };
+
+function getIcon(isSelected) {
+  if (isSelected)
+    return iconRed;
+  return smallIcons ? iconSmall : L.Marker.prototype.options.icon;
+}
+
+function toggleIconSize() {
+  smallIcons = !smallIcons;
+  points.eachLayer(function(m) {
+    if (m != selected)
+      m.setIcon(getIcon());
+  });
+}
 
 function unselect() {
   if (selected) {
@@ -49,7 +77,7 @@ function unselect() {
     }
     cm.setValue('');
     savePoints();
-    selected.setIcon(new L.Icon.Default());
+    selected.setIcon(getIcon());
     selected.dragging.disable();
     selected = null;
   }
@@ -62,7 +90,7 @@ function selectPoint(e) {
   if (selected)
     unselect();
   selected = point;
-  selected.setIcon(iconRed);
+  selected.setIcon(getIcon(true));
   selected.dragging.enable();
   cm.setValue(propsToText(selected));
   document.getElementById('sidebar-props').style.visibility = 'inherit';
@@ -76,7 +104,7 @@ function addPoint(coord) {
     clearStorage();
   if (!coord)
     coord = map.getCenter();
-  let m = L.marker(coord);
+  let m = L.marker(coord, { icon: getIcon() });
   m.on('click', selectPoint);
   m.feature = m.toGeoJSON();
   points.addLayer(m);
@@ -87,6 +115,11 @@ function deletePoint() {
   var p = selected;
   unselect();
   points.removeLayer(p);
+  if (points.getLayers().length == 0) {
+    document.getElementById('sidebar-empty').style.display = 'none';
+    document.getElementById('sidebar-start').style.display = 'block';
+  } else
+  savePoints();
 }
 
 function getPointName(point) {
@@ -147,6 +180,7 @@ function doLoad(content) {
   points = L.geoJSON(data, {
     onEachFeature(f, layer) {
       layer.on('click', selectPoint);
+      layer.setIcon(getIcon());
       let name = getPointName(layer);
       if (name)
         layer.bindTooltip(name);
@@ -154,7 +188,7 @@ function doLoad(content) {
   });
   map.addLayer(points);
   document.getElementById('sidebar-start').style.display = 'none';
-  map.fitBounds(points.getBounds());
+  map.fitBounds(points.getBounds(), {maxZoom: 15});
 }
 
 function loadFile(input) {
@@ -183,10 +217,10 @@ function clearStorage() {
 }
 
 function savePoints() {
-  let pointsStr = points ? JSON.stringify(points.toGeoJSON()) : null;
+  let pointsStr = points.getLayers().length > 0 ? JSON.stringify(points.toGeoJSON()) : null;
   let link = document.getElementById('downlink');
   link.setAttribute('href', points ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(pointsStr) : '#');
   localStorage.setItem('savedPoints', pointsStr);
   localStorage.setItem('savedPointsName', document.getElementById('downlink').getAttribute('download'));
-  document.getElementById('download').style.display = points ? 'block' : 'none';
+  document.getElementById('download').style.display = pointsStr ? 'block' : 'none';
 }

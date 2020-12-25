@@ -17,6 +17,7 @@
       #sidebar-empty, #restore, #download { display: none; }
       #sidebar-props { visibility: hidden; }
       #props { width: 100%; height: 300px; }
+      .CodeMirror { border: 1px solid gray; }
     </style>
   </head>
   <body>
@@ -28,14 +29,16 @@
         <p id="restore">There is a saved session, <button onclick="restoreSaved()">restore</button> if needed.</p>
       </div>
       <div id="sidebar-empty">
-        <p>Doubleclick on the map or <button onclick="addPoint()">click here</button>
+        <p>Double-click on the map or <button onclick="addPoint()">click here</button>
           to add a point.</p>
         <p id="download"><a href="#" id="downlink" download="points.geojson">Download the result</a>.</p>
+        <!--p><button onclick="toggleIconSize()">Toggle small icons</button></p-->
       </div>
       <div id="sidebar-props">
-        <p>Properties: <button onclick="unselect()" >Close</button></p>
+        <p>Properties: <button onclick="unselect()">❌ Close</button></p>
         <textarea id="props"></textarea>
-        <p><a href="#" onclick="deletePoint()">Delete</a></p>
+        <p>Format is "key value", separated with a space. If a key contains spaces, enclose it in double quotes.</p>
+        <p><a href="#" onclick="deletePoint()">Delete point</a></p>
       </div>
     </div>
     <div id="map"></div>

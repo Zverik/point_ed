@@ -7,9 +7,8 @@ window.onload = function() {
   }).addTo(map);
   points = L.featureGroup().addTo(map);
 
-  console.log(localStorage.getItem('saved'))
   if (localStorage.getItem('saved'))
-    document.getElementById('restore').display = 'block';
+    document.getElementById('restore').style.display = 'block';
 
   CodeMirror.defineSimpleMode('props1', {
     start: [
@@ -142,8 +141,7 @@ function doLoad(content) {
   }
 
   unselect();
-  if (points)
-    map.removeLayer(points);
+  map.removeLayer(points);
   points = L.geoJSON(data, {
     onEachFeature(f, layer) {
       layer.on('click', selectPoint);

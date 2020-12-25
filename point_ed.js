@@ -202,7 +202,7 @@ function doLoad(content) {
   });
   map.addLayer(points);
   document.getElementById('sidebar-start').style.display = 'none';
-  map.fitBounds(points.getBounds(), {maxZoom: 15});
+  map.fitBounds(points.getBounds(), {maxZoom: 16});
 }
 
 function loadFile(input) {

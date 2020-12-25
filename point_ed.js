@@ -7,7 +7,7 @@ window.onload = function() {
   }).addTo(map);
   points = L.featureGroup().addTo(map);
 
-  if (localStorage.getItem('saved'))
+  if (localStorage.getItem('savedPoints'))
     document.getElementById('restore').style.display = 'block';
 
   CodeMirror.defineSimpleMode('props1', {
@@ -174,6 +174,6 @@ function savePoints() {
   let pointsStr = points ? JSON.stringify(points.toGeoJSON()) : null;
   let link = document.getElementById('downlink');
   link.setAttribute('href', points ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(pointsStr) : '#');
-  localStorage.setItem('saved', pointsStr);
+  localStorage.setItem('savedPoints', pointsStr);
   document.getElementById('download').style.display = points ? 'block' : 'none';
 }

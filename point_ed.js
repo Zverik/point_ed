@@ -1,4 +1,4 @@
-var map, points, selected, cm, iconRed, iconSmall;
+var map, points, filtered, filter, selected, cm, iconRed, iconSmall;
 var smallIcons = true;
 
 window.onload = function() {
@@ -7,7 +7,9 @@ window.onload = function() {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>',
     maxZoom: 19
   }).addTo(map);
-  points = L.featureGroup().addTo(map);
+  points = L.featureGroup();
+  filtered = L.featureGroup().addTo(map);
+  updateFiltered();
 
   if (localStorage.getItem('savedPoints'))
     document.getElementById('restore').style.display = 'block';
@@ -121,6 +123,7 @@ function addPoint(coord) {
   m.on('click', selectPoint);
   m.feature = m.toGeoJSON();
   points.addLayer(m);
+  filtered.addLayer(m);
   selectPoint({target: m});
 }
 
@@ -128,6 +131,7 @@ function deletePoint() {
   var p = selected;
   unselect();
   points.removeLayer(p);
+  updateFiltered();
   if (points.getLayers().length == 0) {
     document.getElementById('sidebar-empty').style.display = 'none';
     document.getElementById('sidebar-start').style.display = 'block';
@@ -191,7 +195,6 @@ function doLoad(content) {
   }
 
   unselect();
-  map.removeLayer(points);
   points = L.geoJSON(data, {
     onEachFeature(f, layer) {
       layer.on('click', selectPoint);
@@ -201,9 +204,10 @@ function doLoad(content) {
         layer.bindTooltip(name);
     }
   });
-  map.addLayer(points);
+  updateFiltered();
   document.getElementById('sidebar-start').style.display = 'none';
-  map.fitBounds(points.getBounds(), {maxZoom: 16});
+  if (filtered.getLayers().length > 0)
+    map.fitBounds(filtered.getBounds(), {maxZoom: 16});
 }
 
 function loadFile(input) {
@@ -231,11 +235,84 @@ function clearStorage() {
   localStorage.removeItem('savePointsName');
 }
 
-function savePoints() {
+function updateLinks() {
   let pointsStr = points.getLayers().length > 0 ? JSON.stringify(points.toGeoJSON()) : null;
+  let filterStr = filtered.getLayers().length > 0 ? JSON.stringify(filtered.toGeoJSON()) : null;
   let link = document.getElementById('downlink');
-  link.setAttribute('href', points ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(pointsStr) : '#');
+  let linkF = document.getElementById('downfilter');
+  link.setAttribute('href', pointsStr ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(pointsStr) : '#');
+  linkF.setAttribute('href', filterStr ? 'data:application/geo+json;charset=utf-8,' + encodeURIComponent(filterStr) : '#');
+  document.getElementById('download').style.display = pointsStr ? 'block' : 'none';
+}
+
+function savePoints() {
+  updateLinks();
+  let pointsStr = points.getLayers().length > 0 ? JSON.stringify(points.toGeoJSON()) : null;
   localStorage.setItem('savedPoints', pointsStr);
   localStorage.setItem('savedPointsName', document.getElementById('downlink').getAttribute('download'));
-  document.getElementById('download').style.display = pointsStr ? 'block' : 'none';
+}
+
+function matchesFilter(props, tokens) {
+  for (let token of tokens) {
+    if (token != '') {
+      let neg = token[0] == '-';
+      if (neg)
+        token = token.substring(1).trimStart();
+      let semi = token.indexOf(':')
+      let eq = token.indexOf('=')
+      let matches;
+      if (semi > 0 && (eq < 0 || semi < eq)) {
+        let k = token.substring(0, semi).trimEnd();
+        let v = token.substring(semi+1).trimStart();
+        matches = k in props && props[k].indexOf(v) >= 0;
+      } else if (eq > 0 && (semi < 0 || eq < semi)) {
+        let k = token.substring(0, eq).trimEnd();
+        let v = token.substring(eq+1).trimStart();
+        matches = k in props && props[k] == v;
+      } else {
+        matches = token in props;
+      }
+      if (neg)
+        matches = !matches;
+      if (!matches)
+        return false;
+    }
+  }
+  return true
+}
+
+function updateFiltered() {
+  if (!filter) {
+    filtered.clearLayers();
+    points.eachLayer(function(f) {
+      if (!filtered.hasLayer(f))
+        filtered.addLayer(f);
+      else
+        filtered.removeLayer(f);
+    });
+  } else {
+    let tokens = filter.split(/\s+/);
+    filtered.clearLayers();
+    points.eachLayer(function(p) {
+      if (p == selected || matchesFilter(p.feature.properties, tokens)) {
+        if (!filtered.hasLayer(p))
+          filtered.addLayer(p);
+      } else {
+        if (filtered.hasLayer(p))
+          filtered.removeLayer(p);
+      }
+    });
+  }
+  updateLinks();
+}
+
+function updateFilter(value) {
+  filter = value;
+  updateFiltered();
+}
+
+function clearFilter() {
+  document.getElementById('filter').value = '';
+  filter = null;
+  updateFiltered();
 }

@@ -31,8 +31,13 @@
       <div id="sidebar-empty">
         <p>Double-click on the map or <button onclick="addPoint()">click here</button>
           to add a point.</p>
-        <p id="download"><a href="#" id="downlink" download="points.geojson">Download the result</a>.</p>
-        <!--p><button onclick="toggleIconSize()">Toggle small icons</button></p-->
+        <p id="download"><a href="#" id="downlink" download="points.geojson">Download the result</a> or <a href="#" id="downfilter" download=filtered.geojson">download filtered</a>.</p>
+        <hr>
+        <p>
+          Filter: <input type="text" id="filter" value="" onchange="updateFilter(this.value)">
+          <button onclick="clearFilter()">X</button><br>
+          <small>Either key name, or key=full_match, or key:partial_match. Prefix with "-" to negate.</small>
+        </p>
       </div>
       <div id="sidebar-props">
         <p>Properties: <button onclick="unselect()">❌ Close</button></p>

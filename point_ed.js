@@ -108,6 +108,7 @@ function selectPoint(e) {
   document.getElementById('sidebar-props').style.visibility = 'inherit';
   document.getElementById('sidebar-empty').style.display = 'none';
   cm.focus();
+  cm.setCursor(cm.lineCount(), 0);
 }
 
 function addPoint(coord) {

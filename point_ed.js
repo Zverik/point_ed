@@ -283,16 +283,16 @@ function matchesFilter(props, tokens) {
 
 function updateFiltered() {
   if (!filter) {
-    filtered.clearLayers();
+    for (let f of filtered.getLayers()) {
+      if (!points.hasLayer(f))
+        filtered.removeLayer(f);
+    }
     points.eachLayer(function(f) {
       if (!filtered.hasLayer(f))
         filtered.addLayer(f);
-      else
-        filtered.removeLayer(f);
     });
   } else {
     let tokens = filter.split(/\s+/);
-    filtered.clearLayers();
     points.eachLayer(function(p) {
       if (p == selected || matchesFilter(p.feature.properties, tokens)) {
         if (!filtered.hasLayer(p))

@@ -94,6 +94,7 @@ function unselect() {
     selected.setIcon(getIcon());
     selected.dragging.disable();
     selected = null;
+    updateFiltered();
   }
   document.getElementById('sidebar-props').style.visibility = 'hidden';
   document.getElementById('sidebar-empty').style.display = 'block';

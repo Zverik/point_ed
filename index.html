@@ -4,9 +4,9 @@
     <title>GeoJSON Point Editor</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1/dist/leaflet.css" />
     <link href="https://unpkg.com/codemirror@5/lib/codemirror.css" rel="stylesheet" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/codemirror@5/lib/codemirror.js"></script>
     <script src="https://unpkg.com/codemirror@5/addon/mode/simple.js"></script>
     <script src="point_ed.js"></script>
@@ -31,7 +31,7 @@
       <div id="sidebar-empty">
         <p>Double-click on the map or <button onclick="addPoint()">click here</button>
           to add a point.</p>
-        <p id="download"><a href="#" id="downlink" download="points.geojson">Download the result</a> or <a href="#" id="downfilter" download=filtered.geojson">download filtered</a>.</p>
+        <p id="download"><a href="#" id="downlink" download="points.geojson">Download the result</a> or <a href="#" id="downfilter" download="filtered.geojson">download filtered</a>.</p>
         <hr>
         <p>
           Filter: <input type="text" id="filter" value="" onchange="updateFilter(this.value)">

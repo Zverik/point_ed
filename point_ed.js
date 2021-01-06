@@ -78,9 +78,14 @@ function toggleIconSize() {
   });
 }
 
+function canTouchField(k, v) {
+  let goodTypes = ['number', 'string', 'boolean', 'bigint'];
+  return k.substring(0, 1) != '$' && goodTypes.indexOf(typeof v) >= 0;
+}
+
 function unselect() {
   if (selected) {
-    let newProps = textToProps(cm.getValue());
+    let newProps = textToProps(cm.getValue(), selected.feature.properties);
     if (!compareProps(newProps, selected.feature.properties)) {
       selected.feature.properties = newProps;
       let name = getPointName(selected);
@@ -156,20 +161,38 @@ function propsToText(point) {
   let props = point.feature.properties;
   let s = '';
   for (p in props) {
-    s += (p.indexOf(' ') >= 0 ? '"' + p + '"' : p) + '  ' + props[p] + '\n';
+    if (canTouchField(p, props[p])) {
+      let k = p.indexOf(' ') >= 0 ? '"' + p + '"' : p;
+      let v = (typeof props[p] == 'string' &&
+        props[p].match(/^(\d*\.?\d+|true|false)$/i)) ?
+        '"' + props[p] + '"' : props[p];
+      s += k + '  ' + v + '\n';
+    }
   }
   return s;
 }
 
-function textToProps(s) {
+function textToProps(s, props) {
   let newProps = {};
+  for (p in props)
+    if (!canTouchField(p, props[p]))
+      newProps[p] = props[p];
+
   for (let line of s.split('\n')) {
     let parts = line.trim().match(/^(?:"([^"]+)"|([^ ]+))\s+(.+)$/);
     if (parts && parts[3]) {
       let k = parts[1] || parts[2];
       let v = parts[3].trim();
-      let vNum = Number(v);
-      newProps[k.trim()] = isNaN(vNum) ? v : vNum;
+      if (v.match(/^".*"$/))
+        newProps[k.trim()] = v.substring(1, v.length - 1).trim();
+      else if (v.toLowerCase() == 'true')
+        newProps[k.trim()] = true;
+      else if (v.toLowerCase() == 'false')
+        newProps[k.trim()] = false;
+      else {
+        let vNum = Number(v);
+        newProps[k.trim()] = isNaN(vNum) ? v : vNum;
+      }
     }
   }
   return newProps;

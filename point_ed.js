@@ -20,7 +20,7 @@ window.onload = function() {
     ]
   });
   cm = CodeMirror.fromTextArea(document.getElementById('props'), {
-    mode: 'props1'
+    mode: 'props1', lineWrapping: true
   });
 
   iconRed = L.icon({

@@ -136,13 +136,13 @@ function addPoint(coord) {
 function deletePoint() {
   var p = selected;
   unselect();
+  filtered.removeLayer(p);
   points.removeLayer(p);
-  updateFiltered();
   if (points.getLayers().length == 0) {
     document.getElementById('sidebar-empty').style.display = 'none';
     document.getElementById('sidebar-start').style.display = 'block';
   } else
-  savePoints();
+    savePoints();
 }
 
 function getPointName(point) {
@@ -326,6 +326,10 @@ function updateFiltered() {
           filtered.removeLayer(p);
       }
     });
+    for (let f of filtered.getLayers()) {
+      if (!points.hasLayer(f))
+        filtered.removeLayer(f);
+    }
   }
   updateLinks();
 }

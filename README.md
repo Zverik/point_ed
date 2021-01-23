@@ -1,7 +1,7 @@
 # GeoJSON Point Editor
 
 This is a dedicated editor for points in a GeoJSON. Lines are not supported, but preserved.
-Structured properties are flattened into strings.
+Structured properties and properties with keys starting with `$` are hidden and preserved.
 
 ## Why is it better?
 

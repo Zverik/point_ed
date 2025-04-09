@@ -152,8 +152,8 @@ function getPointName(point) {
   if (props['id']) return ''+props.id;
   if (props['ref']) return ''+props.ref;
   for (p in props) {
-    if (p.toLowerCase().indexOf('name') >= 0) return ''+props[p];
-    if (p.toLowerCase().indexOf('title') >= 0) return ''+props[p];
+    if (p.toLowerCase().indexOf('name') >= 0) return '' + props[p];
+    if (p.toLowerCase().indexOf('title') >= 0) return '' + props[p];
   }
   return null;
 }
